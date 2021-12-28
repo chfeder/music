@@ -74,7 +74,7 @@ endif
 
 ##############################################################################
 CFLAGS += $(OPT)
-TARGET  = MUSIC
+TARGET  = music
 OBJS    = output.o transfer_function.o Numerics.o defaults.o constraints.o random.o\
 		convolution_kernel.o region_generator.o densities.o cosmology.o poisson.o\
 		densities.o cosmology.o poisson.o log.o main.o \
