@@ -5,16 +5,16 @@ MULTITHREADFFTW	= yes
 SINGLEPRECISION	= no
 HAVEHDF5        = yes
 HAVEBOXLIB	= no
-BOXLIB_HOME     = ${HOME}/nyx_tot_sterben/BoxLib
+BOXLIB_HOME     = ${HOME}/nyx
 
 ##############################################################################
 ### compiler and path settings
-CC      = g++
+CC      = g++-mp-11
 OPT     = -Wall -Wno-unknown-pragmas -O3 -g -mtune=native
-CFLAGS  =  
-LFLAGS  = -lgsl -lgslcblas 
-CPATHS  = -I./src -I$(HOME)/local/include -I/opt/local/include -I/usr/local/include
-LPATHS  = -L$(HOME)/local/lib -L/opt/local/lib -L/usr/local/lib
+CFLAGS  = 
+LFLAGS  = -lgsl -lgslcblas
+CPATHS  = -I./src -I/opt/local/include/mpich-mp -I/opt/local/include
+LPATHS  = -L$(HOME)/local/lib -L/opt/local/lib
 
 ##############################################################################
 # if you have FFTW 2.1.5 or 3.x with multi-thread support, you can enable the 
@@ -127,4 +127,3 @@ ifeq ($(strip $(HAVEBOXLIB)), yes)
 	cd src/plugins/nyx_plugin; make realclean BOXLIB_HOME=$(BOXLIB_HOME)
 endif
 	cd $(oldpath)
-	
