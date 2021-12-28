@@ -1,2 +1,7 @@
 build
-
+MUSIC
+*.o
+*.hdf5
+*.h5
+*.txt
+*.bin
