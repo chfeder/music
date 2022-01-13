@@ -14,7 +14,7 @@ OPT     = -Wall -Wno-unknown-pragmas -O3 -g -mtune=native
 CFLAGS  = 
 LFLAGS  = -lgsl -lgslcblas
 CPATHS  = -I./src -I/opt/local/include/mpich-mp -I/opt/local/include
-LPATHS  = -L$(HOME)/local/lib -L/opt/local/lib
+LPATHS  = -L/opt/local/lib
 
 ##############################################################################
 # if you have FFTW 2.1.5 or 3.x with multi-thread support, you can enable the 
