@@ -9,12 +9,22 @@ BOXLIB_HOME     = ${HOME}/nyx
 
 ##############################################################################
 ### compiler and path settings
+HOST=$(shell hostname)
+# CF Macbook
+ifneq (,$(findstring Twister,$(HOST)))
 CC      = g++-mp-11
+CPATHS  = -I./src -I/opt/local/include/mpich-mp -I/opt/local/include
+LPATHS  = -L/opt/local/lib
+endif
+# Gadi or SuperMUC
+ifneq (,$(findstring login,$(HOST)))
+CC      = mpicxx
+CPATHS  = -I./src  -I$(HDF5_BASE)/include
+LPATHS  = -L$(HDF5_BASE)/lib
+endif
 OPT     = -Wall -Wno-unknown-pragmas -O3 -g -mtune=native
 CFLAGS  = 
 LFLAGS  = -lgsl -lgslcblas
-CPATHS  = -I./src -I/opt/local/include/mpich-mp -I/opt/local/include
-LPATHS  = -L/opt/local/lib
 
 ##############################################################################
 # if you have FFTW 2.1.5 or 3.x with multi-thread support, you can enable the 
