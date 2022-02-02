@@ -153,12 +153,12 @@ void modify_grid_for_TF( const refinement_hierarchy& rh_full, refinement_hierarc
 		}
 	}
 	
-	
-		
 }
 
 void print_hierarchy_stats( config_file& cf, const refinement_hierarchy& rh )
 {
+	double hubble = cf.getValue<double>("cosmology","H0");
+	double h = (hubble/100);
 	double omegam = cf.getValue<double>("cosmology","Omega_m");
 	double omegab = cf.getValue<double>("cosmology","Omega_b");
 	bool bbaryons = cf.getValue<bool>("setup","baryons");
@@ -166,7 +166,7 @@ void print_hierarchy_stats( config_file& cf, const refinement_hierarchy& rh )
 	
 	unsigned levelmin = rh.levelmin();
 	double dx = boxlength/(double)(1<<levelmin), dx3=dx*dx*dx;
-	double rhom = 2.77519737e11; // h-1 M_o / (h-1 Mpc)**3
+	double rhom = 2.77519737e11; // h-1 M_o / (h-1 Mpc)**3; critical density = 3 * (100km/s/Mpc)^2 / (8*pi*G)
 	double cmass, bmass(0.0), mtotgrid;
 	if( bbaryons )
 	{
@@ -189,6 +189,8 @@ void print_hierarchy_stats( config_file& cf, const refinement_hierarchy& rh )
 		double rfac = 1.0/(1<<(ilevel-rh.levelmin())), rfac3=rfac*rfac*rfac;
 		
 		mtotgrid = omegam*rhom*dx3*rfac3*rh.size(ilevel, 0)*rh.size(ilevel, 1)*rh.size(ilevel, 2);
+		std::cout << "dx, rfac, rh.size(ilevel, 0) = " << dx << ", " << rfac << ", " << rh.size(ilevel, 0) << std::endl;
+		double DM_mass = (omegam-omegab)*rhom*dx3*rfac3*rh.size(ilevel, 0)*rh.size(ilevel, 1)*rh.size(ilevel, 2);
 		std::cout 
 		<< "     Level " << std::setw(3) << ilevel << " :   offset = (" << std::setw(5) << rh.offset(ilevel,0) << ", " << std::setw(5) << rh.offset(ilevel,1) << ", " << std::setw(5) << rh.offset(ilevel,2) << ")\n"
 		<< "                     size = (" << std::setw(5) << rh.size(ilevel,0) << ", " << std::setw(5) << rh.size(ilevel,1) << ", " << std::setw(5) << rh.size(ilevel,2) << ")\n";
@@ -205,6 +207,8 @@ void print_hierarchy_stats( config_file& cf, const refinement_hierarchy& rh )
 			else
 			  std::cout << "                   extent =  " << dx*rfac*1.e6*rh.size(ilevel,0) << " x " << dx*rfac*1.e6*rh.size(ilevel,1) << " x " << dx*rfac*1.e6 * rh.size(ilevel,2) << " h-3 pc**3\n";
 
+			std::cout << "               DM density =  " << (omegam-omegab)*rhom*h*h << " M_o / (Mpc)^3 = " << (omegam-omegab)*rhom*h*h*6.767905323247326e-41 << " g / cm^3\n";
+			std::cout << "                  DM mass =  " << DM_mass/h << " M_o = " << DM_mass/h*1.988409870698051e+33 << " g\n";
 			std::cout << "                 mtotgrid =  " << mtotgrid << " h-1 M_o\n";
 			std::cout << "            particle mass =  " << cmass*rfac3 << " h-1 M_o\n";
 			if( bbaryons )
@@ -422,9 +426,9 @@ int main (int argc, const char * argv[])
 	//... initialize cosmology
 	//------------------------------------------------------------------------------
 	bool 
-	  do_baryons	= cf.getValue<bool>("setup","baryons"),
-	  do_2LPT	= cf.getValueSafe<bool>("setup","use_2LPT",false),
-	  do_LLA       	= cf.getValueSafe<bool>("setup","use_LLA",false);
+	  do_baryons = cf.getValue<bool>("setup","baryons"),
+	  do_2LPT    = cf.getValueSafe<bool>("setup","use_2LPT",false),
+	  do_LLA     = cf.getValueSafe<bool>("setup","use_LLA",false);
 	
 	transfer_function_plugin *the_transfer_function_plugin
 		= select_transfer_function_plugin( cf );
@@ -437,6 +441,7 @@ int main (int argc, const char * argv[])
 	cosmo.pnorm	= ccalc.ComputePNorm( 2.0*M_PI/boxlength );
 	cosmo.dplus	= ccalc.CalcGrowthFactor( cosmo.astart )/ccalc.CalcGrowthFactor( 1.0 );
 	cosmo.vfact = ccalc.CalcVFact( cosmo.astart );
+	std::cout << "cosmo.vfact = " << cosmo.vfact << std::endl;
 	
 	if( !the_transfer_function_plugin->tf_has_total0() )
 	        cosmo.pnorm *= cosmo.dplus*cosmo.dplus;
@@ -1039,7 +1044,7 @@ int main (int argc, const char * argv[])
 						data_forIO.zero();
 						*data_forIO.get_grid(data_forIO.levelmax()) = *f.get_grid(f.levelmax());
 						poisson_hybrid(*data_forIO.get_grid(data_forIO.levelmax()), icoord, grad_order, 
-							       data_forIO.levelmin()==data_forIO.levelmax(), decic_baryons );					
+							       data_forIO.levelmin()==data_forIO.levelmax(), decic_baryons );
 						*data_forIO.get_grid(data_forIO.levelmax()) /= (1<<f.levelmax());
 						the_poisson_solver->gradient_add(icoord, u1, data_forIO );
 					}
@@ -1053,7 +1058,7 @@ int main (int argc, const char * argv[])
 					
 					coarsen_density( rh_Poisson, data_forIO, false );
 					LOGUSER("Writing baryon velocities");
-					the_output_plugin->write_gas_velocity(icoord, data_forIO);				
+					the_output_plugin->write_gas_velocity(icoord, data_forIO);
 				}
 				data_forIO.deallocate();
 				u1.deallocate();
