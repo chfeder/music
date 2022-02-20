@@ -5,6 +5,7 @@
  for cosmological simulations 
  
  Copyright (C) 2010-13  Oliver Hahn
+ Plugin written by Christoph Federrath, 2021-2022
  
  */
 
