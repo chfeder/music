@@ -21,19 +21,30 @@ class flash_output_plugin : public output_plugin
 protected:
 	
 	using output_plugin::cf_;
-		
+
 	template< typename Tt >
 	void write2HDF5( std::string fname, std::string dname, const MeshvarBnd<Tt>& data )
 	{
+		unsigned int level = std::stoi(dname.substr(6,3)); // get level
+		//LOGINFO("write2HDF5: levelmin_ = %d", levelmin_);
+		//LOGINFO("write2HDF5: levelmax_ = %d", levelmax_);
 		int n0 = data.size(0), n1 = data.size(1), n2 = data.size(2), nb = data.m_nbnd;
 		std::vector<Tt> vdata;
+		int ii, jj, kk; // used to fill the buffer cells with periodic guard cell data on all non-refined levels
 		vdata.reserve((unsigned)(n0+2*nb)*(n1+2*nb)*(n2+2*nb));
 		for(int i=-nb; i<n0+nb; ++i )
 			for(int j=-nb; j<n1+nb; ++j )
-				for(int k=-nb; k<n2+nb; ++k )
-					vdata.push_back( data(i,j,k) );
+				for(int k=-nb; k<n2+nb; ++k ) {
+					ii = i; jj = j; kk = k;
+					if (level <= levelmin_) {
+						if (i < 0) { ii = n0+i; }; if (i >= n0) { ii = i-n0; }; // PBCs
+						if (j < 0) { jj = n1+j; }; if (j >= n1) { jj = j-n1; }; // PBCs
+						if (k < 0) { kk = n2+k; }; if (k >= n2) { kk = k-n2; }; // PBCs
+					}
+					vdata.push_back( data(ii,jj,kk) );
+				}
 		
-		unsigned nd[3] = { (unsigned)(n0+2*nb),(unsigned)(n1+2*nb),(unsigned)(n2+2*nb)	};
+		unsigned nd[3] = { (unsigned)(n0+2*nb),(unsigned)(n1+2*nb),(unsigned)(n2+2*nb) };
 		HDFWriteDataset3D( fname, dname, nd, vdata);
 	}
 	
