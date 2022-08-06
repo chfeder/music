@@ -12,7 +12,7 @@ BOXLIB_HOME     = ${HOME}/nyx
 HOST=$(shell hostname)
 # CF Macbook
 ifneq (,$(findstring Twister,$(HOST)))
-CC      = g++-mp-11
+CC      = g++-mp-12
 CPATHS  = -I./src -I/opt/local/include/mpich-mp -I/opt/local/include
 LPATHS  = -L/opt/local/lib
 endif
