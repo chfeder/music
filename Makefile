@@ -10,9 +10,9 @@ BOXLIB_HOME     = ${HOME}/nyx
 ##############################################################################
 ### compiler and path settings
 HOST=$(shell hostname)
-# CF Macbook
+# CF Mac
 ifneq (,$(findstring Twister,$(HOST)))
-CC      = g++-mp-12
+CC      = g++-mp-15
 CPATHS  = -I./src -I/opt/local/include/mpich-mp -I/opt/local/include
 LPATHS  = -L/opt/local/lib
 endif
